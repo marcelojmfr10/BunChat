@@ -1,4 +1,4 @@
-## WebSocket Server - Partidos Políticos
+## WebSocket Server - Chat App
 
 ### Ejecutar en dev
 
@@ -14,9 +14,9 @@
 
 ```javascript
 const message = {
-  type: 'ALGUN_TIPO_DE_MENSAJE',
+  type: "ALGUN_TIPO_DE_MENSAJE",
   payload: {
-    id: 'un-identificador-de-un-item',
+    id: "un-identificador-de-un-item",
   },
 };
 ```
@@ -37,9 +37,9 @@ Ejemplo de mensaje:
 
 ```javascript
 const message = {
-  type: 'ALGUN_TIPO_DE_MENSAJE',
+  type: "ALGUN_TIPO_DE_MENSAJE",
   payload: {
-    id: 'un-identificador-de-un-item',
+    id: "un-identificador-de-un-item",
   },
 };
 ```
