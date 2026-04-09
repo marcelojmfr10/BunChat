@@ -1,27 +1,62 @@
+import type { ChatMessage, Sender } from "./chat-message.types";
+
 //! Este es el objeto que se almacena por cada cliente
 export interface WebSocketData {
-  clientId: string;
+  clientId: string; // id del dispositivo
+  userId: string;
+  name: string;
+  email: string;
 }
 
-//! Este es el objeto que recibe el servidor
-export interface WebSocketMessage {
-  type: MessageType;
-  payload: unknown;
+// server messages
+export type ServerMessage =
+  | {
+      type: "WELCOME";
+      payload: {
+        userId: string;
+        clientId: string;
+        name: string;
+        email: string;
+      };
+    }
+  | {
+      type: "ERROR";
+      payload: { error: string };
+    }
+  | {
+      type: "SEND_GROUP_MESSAGES_RESPONSE";
+      payload: { groupId: string; messages: ChatMessage[] };
+    }
+  | {
+      type: "SEND_DIRECT_MESSAGES_RESPONSE";
+      payload: { receiverId: string; messages: ChatMessage[] };
+    }
+  | {
+      type: "SEND_CONNECTED_USERS_RESPONSE";
+      payload: { users: Sender[] };
+    };
+
+// client messages
+export type ClientMessage =
+  | {
+      type: "SEND_GROUP_MESSAGE";
+      payload: { content: string; groupId: string };
+    }
+  | {
+      type: "SEND_DIRECT_MESSAGE";
+      payload: { content: string; receiverId: string };
+    }
+  | {
+      type: "GET_GROUP_MESSAGES";
+      payload: { groupId: string };
+    }
+  | {
+      type: "GET_DIRECT_MESSAGES";
+      payload: { receiverId: string };
+    };
+
+export interface HandleResult {
+  personal: ServerMessage[];
+  broadcast: ServerMessage[];
+  // todo: a quién quiero mandar el mensaje
 }
-
-export type MessageType = 'PERSONAL_MESSAGE' | 'BROADCAST_MESSAGE';
-
-//! Este es el objeto que se envía al cliente
-export interface WebSocketResponse {
-  type: ResponseType;
-  payload: unknown;
-}
-
-export type ResponseType =
-  | 'ERROR'
-  | 'PERSONAL_RESPONSE_MESSAGE'
-  | 'BROADCAST_RESPONSE_MESSAGE'
-  | 'ITEM_ADDED'
-  | 'ITEM_UPDATED'
-  | 'ITEM_DELETED'
-  | 'ITEMS_LIST';
