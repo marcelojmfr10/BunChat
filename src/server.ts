@@ -1,19 +1,24 @@
-import { SERVER_CONFIG } from './config/server-config';
+import { SERVER_CONFIG } from "./config/server-config";
 
-import indexHtml from '../public/index.html';
-import { generateUuid } from './utils/generate-uuid';
-import type { WebSocketData } from './types';
-import { handleMessage } from './handlers/message.handler';
+import indexHtml from "../public/index.html";
+import { generateUuid } from "./utils/generate-uuid";
+import type { WebSocketData } from "./types";
+import { handleMessage } from "./handlers/message.handler";
+import { handleApiRequest } from "./handlers-rest";
 
 export const createServer = () => {
   const server = Bun.serve<WebSocketData>({
     port: SERVER_CONFIG.port,
 
     routes: {
-      '/': indexHtml,
+      "/": indexHtml,
     },
 
-    fetch(req, server) {
+    async fetch(req, server) {
+      const response = await handleApiRequest(req);
+      if (response) {
+        return response;
+      }
       //* Identificar nuestros clientes
       const clientId = generateUuid();
       const upgraded = server.upgrade(req, {
@@ -24,7 +29,7 @@ export const createServer = () => {
         return undefined;
       }
 
-      return new Response('Upgrade failed', { status: 500 });
+      return new Response("Upgrade failed", { status: 500 });
     },
     websocket: {
       open(ws) {
@@ -45,13 +50,13 @@ export const createServer = () => {
         const responseString = JSON.stringify(response);
 
         //! Envía el mensaje al cliente que lo envió
-        if (response.type === 'ERROR') {
+        if (response.type === "ERROR") {
           ws.send(responseString);
           return;
         }
 
         //! Si el mensaje es exclusivo del cliente que lo envió (No llamar el publish)
-        if (response.type === 'PERSONAL_RESPONSE_MESSAGE') {
+        if (response.type === "PERSONAL_RESPONSE_MESSAGE") {
           ws.send(responseString);
           return;
         }
