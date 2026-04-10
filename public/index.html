@@ -107,12 +107,14 @@
       messageForm.addEventListener("submit", (event) => {
         event.preventDefault();
         if (!messageInput.value && messageInput.value.length === 0) return;
+        const receiverId = usersSelect.value;
 
         const message = {
-          type: "SEND_GROUP_MESSAGE",
+          type:
+            receiverId === "" ? "SEND_GROUP_MESSAGE" : "SEND_DIRECT_MESSAGE",
           payload: {
             content: messageInput.value,
-            //todo a quién se le manda el mensaje
+            receiverId,
           },
         };
 

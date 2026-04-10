@@ -89,7 +89,8 @@ export const createServer = () => {
         }
 
         for (const message of response.broadcast) {
-          ws.publish(SERVER_CONFIG.defaultChannelName, JSON.stringify(message));
+          // ws.publish(SERVER_CONFIG.defaultChannelName, JSON.stringify(message));
+          ws.publish(response.broadcastTo, JSON.stringify(message));
         }
       },
       close(ws, code, message) {
