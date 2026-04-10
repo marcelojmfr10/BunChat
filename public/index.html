@@ -59,6 +59,7 @@
       const inputEmail = document.querySelector("#input-email");
       const inputPassword = document.querySelector("#input-password");
       const btnLogin = document.querySelector("#btn-login");
+      const usersSelect = document.querySelector("#select-receiver");
 
       const createWebSocket = () => {
         const channelId = "mi-canal-personalizado";
@@ -121,8 +122,26 @@
       });
 
       const showMessage = (message) => {
+        const jsonMessage = JSON.parse(message);
+
+        if (jsonMessage.type === "SEND_CONNECTED_USERS_RESPONSE") {
+          const users = jsonMessage.payload.users;
+          usersSelect.innerHTML = "";
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "Everyone";
+          usersSelect.appendChild(option);
+
+          users.forEach((user) => {
+            const option = document.createElement("option");
+            option.value = user.id;
+            option.textContent = user.name;
+            usersSelect.appendChild(option);
+          });
+        }
+
         const pre = document.createElement("pre");
-        pre.innerHTML = JSON.stringify(JSON.parse(message), null, 2);
+        pre.innerHTML = JSON.stringify(jsonMessage, null, 2);
 
         messagesContainer.prepend(pre);
       };

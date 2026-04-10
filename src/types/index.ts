@@ -58,5 +58,5 @@ export type ClientMessage =
 export interface HandleResult {
   personal: ServerMessage[];
   broadcast: ServerMessage[];
-  // todo: a quién quiero mandar el mensaje
+  broadcastTo: string;
 }

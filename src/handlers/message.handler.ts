@@ -1,5 +1,7 @@
+import { SERVER_CONFIG } from "../config/server-config";
 import { messageSchema } from "../schemas/websocket-message.schema";
 import type { HandleResult, WebSocketData } from "../types";
+import { handleDirectMessage } from "./direct-message.handler";
 import { createErrorResponse } from "./error.handler";
 import { handleSendGroupMessage } from "./group-message.handler";
 
@@ -33,6 +35,24 @@ export const handleMessage = async (
         return {
           broadcast: [groupMessage],
           personal: [groupMessage],
+          broadcastTo: payload.groupId || SERVER_CONFIG.defaultChannelName,
+        };
+
+      //TODO:
+      // case "GET_DIRECT_MESSAGES":
+      //   break;
+
+      case "SEND_DIRECT_MESSAGE":
+        const directMessage = await handleDirectMessage({
+          content: payload.content,
+          receiverId: payload.receiverId,
+          senderId: webSocketData.userId,
+        });
+
+        return {
+          personal: [directMessage],
+          broadcast: [directMessage],
+          broadcastTo: payload.receiverId,
         };
 
       default:
