@@ -37,13 +37,13 @@
 
     <script>
       // Crear cookies
-      const session = {
-        id: 1,
-        sessionId: "Abc123",
-      };
-      const jwtToken = "MiToken-JWT";
-      document.cookie = `session=${JSON.stringify(session)}`;
-      document.cookie = `X-Token=${jwtToken}`;
+      //const session = {
+      //  id: 1,
+      //  sessionId: "Abc123",
+      //};
+      //const jwtToken = "MiToken-JWT";
+      //document.cookie = `session=${JSON.stringify(session)}`;
+      //document.cookie = `X-Token=${jwtToken}`;
 
       let socket;
 
@@ -107,7 +107,15 @@
         event.preventDefault();
         if (!messageInput.value && messageInput.value.length === 0) return;
 
-        socket.send(messageInput.value);
+        const message = {
+          type: "SEND_GROUP_MESSAGE",
+          payload: {
+            content: messageInput.value,
+            //todo a quién se le manda el mensaje
+          },
+        };
+
+        socket.send(JSON.stringify(message));
         // showMessage(messageInput.value);
         messageInput.value = "";
       });
@@ -127,10 +135,10 @@
 
         const response = await fetch("/api/login", {
           method: "POST",
-          body: {
+          body: JSON.stringify({
             email: inputEmail.value.trim(),
             password: inputPassword.value,
-          },
+          }),
         });
 
         const data = await response.json();

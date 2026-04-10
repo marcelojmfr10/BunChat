@@ -9,6 +9,10 @@ import { validateJwtToken } from "./utils/jwt-validation";
 import type { Sender } from "./types/chat-message.types";
 import { userService } from "./services/user.service";
 import { handleGetGroupMessages } from "./handlers/group-message.handler";
+import {
+  handleAddConnectedUser,
+  handleRemoveConnectedUser,
+} from "./handlers/connected-users.handler";
 
 export const createServer = () => {
   const server = Bun.serve<WebSocketData>({
@@ -54,17 +58,26 @@ export const createServer = () => {
       return new Response("Upgrade failed", { status: 500 });
     },
     websocket: {
-      open(ws) {
+      async open(ws) {
         //! Una nueva conexión
         //! Suscribir el cliente a un canal por defecto
         ws.subscribe(SERVER_CONFIG.defaultChannelName);
         ws.subscribe(ws.data.userId);
 
         // ! cuando nos conectamos
-        const groupMessages = handleGetGroupMessages();
+        const groupMessages = await handleGetGroupMessages();
         ws.send(JSON.stringify(groupMessages));
 
-        //todo: notificar que este usuario se conectó al chat
+        const connectUsersMessage = handleAddConnectedUser({
+          email: ws.data.email,
+          id: ws.data.userId,
+          name: ws.data.name,
+        });
+        ws.send(JSON.stringify(connectUsersMessage));
+        ws.publish(
+          SERVER_CONFIG.defaultChannelName,
+          JSON.stringify(connectUsersMessage),
+        );
       },
       async message(ws, message: string) {
         //* Todos los mensajes que llegan al servidor de la misma forma
@@ -85,7 +98,11 @@ export const createServer = () => {
         ws.unsubscribe(SERVER_CONFIG.defaultChannelName);
         ws.unsubscribe(ws.data.userId);
 
-        //todo notificar que un usuario salió
+        const connectUsersMessage = handleRemoveConnectedUser(ws.data.userId);
+        ws.publish(
+          SERVER_CONFIG.defaultChannelName,
+          JSON.stringify(connectUsersMessage),
+        );
       }, // a socket is closed
     }, // handlers
   });

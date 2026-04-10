@@ -39,6 +39,9 @@ export const handleMessage = async (
         return createErrorResponse(`Type message not implemented: ${type}`);
     }
   } catch (error) {
-    return createErrorResponse(`Validation error`);
+    console.log({ error });
+    return createErrorResponse(
+      `Validation error - Message is not a JSON Object`,
+    );
   }
 };
